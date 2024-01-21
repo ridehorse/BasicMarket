@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:test
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto-create
+  profiles:
+    active:
+      local
+jwt:
+  key:
+    access: YWNjZXNzQ29kZQ== # 애플리케이션에서 인코딩 하지 않고 애초에 base64로 인코딩된 값을 저장한다.
+    refresh: cmVmcmVzaENvZGU=
+  max-age:
+    access: 1800 # 60*30
+    refresh : 604800 # 60*60*24*7
