@@ -19,6 +19,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.example.basicMarket.factory.dto.SignInRequestFactory.createSignInRequest;
+import static org.example.basicMarket.factory.dto.SignInRequestFactory.createSignInRequestWithEmail;
+import static org.example.basicMarket.factory.dto.SignUpRequestFactory.createSignUpRequest;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
@@ -42,7 +45,7 @@ public class SignControllerAdviceTest {
     @Test
     void signInLoginFailureExceptionTest() throws Exception {
         //given
-        SignInRequest req = new SignInRequest("email@email.com", "123456a!");
+        SignInRequest req = createSignInRequest();
         given(signService.signIn(any())).willThrow(LoginFailureException.class);
 
         //when,then
@@ -56,7 +59,7 @@ public class SignControllerAdviceTest {
     @Test
     void signInMethodArgumentNotValidExceptionTest() throws Exception{
         //given
-        SignInRequest req = new SignInRequest("email","1234567");
+        SignInRequest req = createSignInRequestWithEmail("email");
 
         //when,then
         mockMvc.perform(
@@ -70,7 +73,7 @@ public class SignControllerAdviceTest {
     @Test
     void signUpMemberEmailAlreadyExistsExceptionTest() throws Exception{
         //given
-        SignUpRequest req = new SignUpRequest("email@email.com","123456a!","username","nickname");
+        SignUpRequest req = createSignUpRequest();
         doThrow(MemberEmailAlreadyExistsException.class).when(signService).signUp(any());
 
         //when, then
@@ -85,7 +88,7 @@ public class SignControllerAdviceTest {
     @Test
     void signUpMemberNicknameAlreadyExistsExceptionTest() throws Exception {
         // given
-        SignUpRequest req = new SignUpRequest("email@email.com", "123456a!", "username", "nickname");
+        SignUpRequest req = createSignUpRequest();
         doThrow(MemberNickNameAlreadyExistsException.class).when(signService).signUp(any());
 
         // when, then
@@ -99,7 +102,7 @@ public class SignControllerAdviceTest {
     @Test
     void signUpRoleNotFoundExceptionTest() throws Exception {
         // given
-        SignUpRequest req = new SignUpRequest("email@email.com", "123456a!", "username", "nickname");
+        SignUpRequest req = createSignUpRequest();
         doThrow(RoleNotFoundException.class).when(signService).signUp(any());
 
         // when, then

@@ -5,6 +5,7 @@ import org.example.basicMarket.dto.response.Response;
 import org.example.basicMarket.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -56,5 +57,23 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Response roleNotFoundException() { // 7
         return Response.failure(-1008, "요청한 권한 등급을 찾을 수 없습니다.");
+    }
+
+    @ExceptionHandler(AuthenticationEntryPointException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED) // 401
+    public Response authenticationEntryPoint() {
+        return Response.failure(-1001, "인증되지 않은 사용자입니다.");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN) // 403
+    public Response accessDeniedException() {
+        return Response.failure(-1002, "접근이 거부되었습니다.");
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class) // @RequestHeader 에너테이션 적용됬곳에 값이 null일 경우
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Response missingRequestHeaderException(MissingRequestHeaderException e) {
+        return Response.failure(-1009, e.getHeaderName() + " 요청 헤더가 누락되었습니다.");
     }
 }

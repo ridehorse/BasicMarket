@@ -8,6 +8,7 @@ import org.example.basicMarket.entity.member.MemberRole;
 import org.example.basicMarket.entity.member.Role;
 import org.example.basicMarket.entity.member.RoleType;
 import org.example.basicMarket.exception.MemberNotFoundException;
+import org.example.basicMarket.factory.entity.MemberFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -20,6 +21,8 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.example.basicMarket.factory.entity.MemberFactory.createMember;
+import static org.example.basicMarket.factory.entity.MemberFactory.createMemberWithRoles;
 
 @DataJpaTest
 public class MemberRepositoryTest {
@@ -43,6 +46,7 @@ public class MemberRepositoryTest {
         Member foundMember = memberRepository.findById(member.getId()).orElseThrow(MemberNotFoundException::new);
         assertThat(foundMember.getId()).isEqualTo(member.getId());
     }
+
 
     @Test
     void updateTest(){
@@ -192,15 +196,4 @@ public class MemberRepositoryTest {
         em.clear();
     }
 
-    private Member createMemberWithRoles(List<Role> roles) {
-        return new Member("email", "password", "username", "nickname", roles);
-    }
-
-    private Member createMember(String email, String password, String username, String nickname) {
-        return new Member(email, password, username, nickname, Collections.emptyList());
-    }
-
-    private Member createMember() {
-        return new Member("email", "password", "username", "nickname", Collections.emptyList());
-    }
 }

@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import static org.example.basicMarket.factory.entity.RoleFactory.createRole;
+
 @DataJpaTest
 public class RoleRepositoryTest {
     @Autowired
@@ -59,9 +61,7 @@ public class RoleRepositoryTest {
 
     }
 
-    private Role createRole() {
-        return new Role(RoleType.ROLE_NORMAL);
-    }
+
 
     private void clear() {
         em.flush();

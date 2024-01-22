@@ -9,7 +9,8 @@ spring:
       ddl-auto-create
   profiles:
     active:
-      local
+      local #test
+
 jwt:
   key:
     access: YWNjZXNzQ29kZQ== # 애플리케이션에서 인코딩 하지 않고 애초에 base64로 인코딩된 값을 저장한다.

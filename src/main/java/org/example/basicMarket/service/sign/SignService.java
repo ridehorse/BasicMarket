@@ -2,21 +2,18 @@ package org.example.basicMarket.service.sign;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.example.basicMarket.dto.sign.RefreshTokenResponse;
 import org.example.basicMarket.dto.sign.SignInRequest;
 import org.example.basicMarket.dto.sign.SignInResponse;
 import org.example.basicMarket.dto.sign.SignUpRequest;
 import org.example.basicMarket.entity.member.Member;
 import org.example.basicMarket.entity.member.RoleType;
-import org.example.basicMarket.exception.LoginFailureException;
-import org.example.basicMarket.exception.MemberEmailAlreadyExistsException;
-import org.example.basicMarket.exception.MemberNickNameAlreadyExistsException;
-import org.example.basicMarket.exception.RoleNotFoundException;
+import org.example.basicMarket.exception.*;
 import org.example.basicMarket.repository.member.MemberRepository;
 import org.example.basicMarket.repository.member.RoleRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
-@Transactional
 @Service
 public class SignService {
 
@@ -41,6 +38,7 @@ public class SignService {
 
     }
 
+    @Transactional
     public SignInResponse signIn(SignInRequest req){
 
         Member member = memberRepository.findByEmail(req.getEmail()).orElseThrow(LoginFailureException::new);
@@ -75,4 +73,16 @@ public class SignService {
         return String.valueOf(member.getId());
     }
 
+    public RefreshTokenResponse refreshToken(String rToken) {
+        validateRefreshToken(rToken);
+        String subject = tokenService.extractRefreshTokenSubject(rToken);
+        String accessToken = tokenService.createAccessToken(subject);
+        return new RefreshTokenResponse(accessToken);
+    }
+
+    private void validateRefreshToken(String rToken) {
+        if (!tokenService.validateRefreshToken(rToken)) {
+            throw new AuthenticationEntryPointException();
+        }
+    }
 }

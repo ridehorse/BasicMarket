@@ -15,6 +15,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.example.basicMarket.factory.dto.RefreshTokenResponseFactory.createRefreshTokenResponse;
+import static org.example.basicMarket.factory.dto.SignInRequestFactory.createSignInRequest;
+import static org.example.basicMarket.factory.dto.SignUpRequestFactory.createSignUpRequest;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -40,7 +43,7 @@ public class SignControllerTest {
     @Test
     void signUpTest() throws Exception {
         // given
-        SignUpRequest req = new SignUpRequest("email@email.com", "123456a!", "username", "nickname");
+        SignUpRequest req = createSignUpRequest();
 
         // when, then
         mockMvc.perform(
@@ -55,7 +58,7 @@ public class SignControllerTest {
     @Test
     void signInTest() throws Exception {
         // given
-        SignInRequest req = new SignInRequest("email@email.com", "123456a!");
+        SignInRequest req = createSignInRequest();
         // signService.signIn() 매서드가 실행된다면 응답으로 new SIgnInResponse("access","refresh") 객체가 return 될 것이다. 라고 약속한거다.
         given(signService.signIn(req)).willReturn(new SignInResponse("access", "refresh"));
 
@@ -78,7 +81,7 @@ public class SignControllerTest {
     @Test
     void ignoreNullValueInJsonResponseTest() throws Exception { // 4
         // given
-        SignUpRequest req = new SignUpRequest("email@email.com", "123456a!", "username", "nickname");
+        SignUpRequest req = createSignUpRequest();
 
         // when, then
         mockMvc.perform(
@@ -88,5 +91,18 @@ public class SignControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.result").doesNotExist());
 
+    }
+
+    @Test
+    void refreshTokenTest() throws Exception {
+        // given
+        given(signService.refreshToken("refreshToken")).willReturn(createRefreshTokenResponse("accessToken"));
+
+        // when, then
+        mockMvc.perform(
+                        post("/api/refresh-token")
+                                .header("Authorization", "refreshToken"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.accessToken").value("accessToken"));
     }
 }
