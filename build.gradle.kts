@@ -40,6 +40,10 @@ dependencies {
 
     // 0Auth2를 사용하기 위한 스타터 추가
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+
+    // https://mvnrepository.com/artifact/io.springfox/springfox-boot-starter
+    // 문서 작성하기 위한 관련 의존성, @EnableSwagger2와 같은 어노테이션 명시 필요 없어짐
+    implementation ("io.springfox:springfox-boot-starter:3.0.0")
 }
 
 tasks.test {

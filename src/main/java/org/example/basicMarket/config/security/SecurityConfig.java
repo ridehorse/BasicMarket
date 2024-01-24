@@ -3,6 +3,7 @@ package org.example.basicMarket.config.security;
 import com.nimbusds.oauth2.sdk.auth.JWTAuthentication;
 import lombok.RequiredArgsConstructor;
 import org.example.basicMarket.config.security.gaurd.MemberGuard;
+import org.example.basicMarket.config.token.TokenHelper;
 import org.example.basicMarket.exception.CustomAccessDeniedHandler;
 import org.example.basicMarket.exception.CustomAuthenticationEntryPoint;
 import org.example.basicMarket.service.sign.TokenService;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,13 +28,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration // spring 에서 사용되는 에너테이션. 설정정보를 포함하고 있는 클래스로 간주한다.
 public class SecurityConfig {
 
-    private final TokenService tokenService;
+    private final TokenHelper accessTokenHelper;
     private final CustomUserDetailsService userDetailsService; // 토큰에 저장된 subject(사용자 id)로 사용자의 정보를 조회하는데 사용
 
-
-    public void configure(WebSecurity web) throws Exception{
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer(){
         // spring Security를 무시할 URL을 지정(/exception 으로 요청이 왔을 떄 springSecurity를 거치지 않고 발로 controller로 요청이 도달하게 된다)
-        web.ignoring().requestMatchers("/exception/**");
+       return (web) -> web.ignoring().requestMatchers("/exception/**","/swagger-ui/**","/swagger-resources/**","/v3/api-docs/**");
     }
 
     @Bean
@@ -52,6 +54,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST,"/api/sign-in","/api/sign-up","/api/refresh-token").permitAll()
                 .requestMatchers(HttpMethod.GET,"/api/**").permitAll()
                 .requestMatchers(HttpMethod.DELETE,"/api/members/{id}/**").access("@memberGuard.check(#id)")
+                .requestMatchers(HttpMethod.POST,"/api/categories/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE,"/api/categories/**").hasRole("ADMIN")
                 .anyRequest().hasAnyRole("ADMIN");
 
         // 권한 부족등의 사유로 인해 접근이 거부 되었을 떄 작동할 핸들러 지정
@@ -62,7 +66,7 @@ public class SecurityConfig {
                 .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint());
 
         // JwtAuthenticationFilter : token으로 사용자를 인증하기 위해 직접 정의한 필터
-        http.addFilterBefore(new JwtAuthenticationFilter(tokenService,userDetailsService), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(accessTokenHelper,userDetailsService), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
 

@@ -2,10 +2,12 @@ package org.example.basicMarket.init;
 
 import jakarta.transaction.Transactional;
 import lombok.Getter;
+import org.example.basicMarket.entity.category.Category;
 import org.example.basicMarket.entity.member.Member;
 import org.example.basicMarket.entity.member.Role;
 import org.example.basicMarket.entity.member.RoleType;
 import org.example.basicMarket.exception.RoleNotFoundException;
+import org.example.basicMarket.repository.member.CategoryRepository;
 import org.example.basicMarket.repository.member.MemberRepository;
 import org.example.basicMarket.repository.member.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,8 @@ public class TestInitDB {
     MemberRepository memberRepository;
     @Autowired
     PasswordEncoder passwordEncoder;
+    @Autowired
+    CategoryRepository categoryRepository;
 
     private final String adminEmail = "admin@admin.com";
     private final String member1Email = "member1@member.com";
@@ -35,6 +39,7 @@ public class TestInitDB {
         initRole();
         initTestAdmin();
         initTestMember();
+        initCategory();
     }
 
     private void initRole() {
@@ -59,6 +64,14 @@ public class TestInitDB {
                         new Member(member2Email, passwordEncoder.encode(password), "member2", "member2",
                                 List.of(roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new))))
         );
+
+
+    }
+
+    private void initCategory() {
+        Category category1 = new Category("category1", null);
+        Category category2 = new Category("category2", category1);
+        categoryRepository.saveAll(List.of(category1, category2));
     }
 
 }

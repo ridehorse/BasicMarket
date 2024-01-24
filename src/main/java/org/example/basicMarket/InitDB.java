@@ -4,10 +4,12 @@ import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.basicMarket.entity.category.Category;
 import org.example.basicMarket.entity.member.Member;
 import org.example.basicMarket.entity.member.Role;
 import org.example.basicMarket.entity.member.RoleType;
 import org.example.basicMarket.exception.RoleNotFoundException;
+import org.example.basicMarket.repository.member.CategoryRepository;
 import org.example.basicMarket.repository.member.MemberRepository;
 import org.example.basicMarket.repository.member.RoleRepository;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -27,7 +29,8 @@ public class InitDB {
 
     private final RoleRepository roleRepository;
     private final MemberRepository memberRepository;
-    private  final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+    private final CategoryRepository categoryRepository;
 
     // @Transactional 적용 불가능하여 제거
     // @PostConstruct // 빈의 생성과 의존성 주입이 끝난 뒤에 수행할 초기화 코드 지정할수 있다.
@@ -38,6 +41,7 @@ public class InitDB {
         initRole(); // 3
         initTestAdmin();
         initTestMember();
+        initCategory();
     }
 
     private void initRole() {
@@ -63,6 +67,17 @@ public class InitDB {
                         new Member("member2@member.com", passwordEncoder.encode("123456a!"), "member2", "member2",
                                 List.of(roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new))))
                 );
+    }
+
+    private void initCategory() {
+        Category c1 = categoryRepository.save(new Category("category1", null));
+        Category c2 = categoryRepository.save(new Category("category2", c1));
+        Category c3 = categoryRepository.save(new Category("category3", c1));
+        Category c4 = categoryRepository.save(new Category("category4", c2));
+        Category c5 = categoryRepository.save(new Category("category5", c2));
+        Category c6 = categoryRepository.save(new Category("category6", c4));
+        Category c7 = categoryRepository.save(new Category("category7", c3));
+        Category c8 = categoryRepository.save(new Category("category8", null));
     }
 
 }

@@ -76,4 +76,17 @@ public class ExceptionAdvice {
     public Response missingRequestHeaderException(MissingRequestHeaderException e) {
         return Response.failure(-1009, e.getHeaderName() + " 요청 헤더가 누락되었습니다.");
     }
+
+    @ExceptionHandler(CategoryNotFoundException.class) // @RequestHeader 에너테이션 적용됬곳에 값이 null일 경우
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Response categoryNotFoundException() {
+        return Response.failure(-1010," 요청한 카테고리를 찾을 수 없습니다.");
+    }
+
+    @ExceptionHandler(CannotConvertNestedStructureException.class) // @RequestHeader 에너테이션 적용됬곳에 값이 null일 경우
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Response CannotConvertNestedStructureException(CannotConvertNestedStructureException e) {
+        log.info("e={}",e.getMessage());
+        return Response.failure(-1011,"중첩 구조 변환에 실패하였습니다");
+    }
 }
