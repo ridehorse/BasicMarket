@@ -5,11 +5,25 @@ spring:
     password:
     driver-class-name: org.h2.Driver
   jpa:
+    show:
+      sql:
+        true
     hibernate:
       ddl-auto-create
   profiles:
     active:
       local #test
+  servlet:
+    multipart:
+      max-file-size:
+        5MB
+      max-request-size:
+        5MB
+
+logging:
+  level:
+    root:
+      debug
 
 jwt:
   key:

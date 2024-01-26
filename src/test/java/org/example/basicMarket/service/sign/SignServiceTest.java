@@ -9,6 +9,7 @@ import org.example.basicMarket.entity.member.RoleType;
 import org.example.basicMarket.exception.*;
 import org.example.basicMarket.repository.member.MemberRepository;
 import org.example.basicMarket.repository.member.RoleRepository;
+import org.example.basicMarket.repository.post.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,9 +43,12 @@ public class SignServiceTest {
     TokenHelper accessTokenHelper;
     @Mock TokenHelper refreshTokenHelper;
 
+    @Mock
+    PostRepository postRepository;
+
     @BeforeEach
     void beforeEach() {
-        signService = new SignService(memberRepository, roleRepository, passwordEncoder, accessTokenHelper, refreshTokenHelper);
+        signService = new SignService(memberRepository, roleRepository, passwordEncoder, accessTokenHelper, refreshTokenHelper,postRepository);
     }
 
     @Test

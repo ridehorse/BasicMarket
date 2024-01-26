@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public CustomUserDetails loadUserByUsername(String userId) throws UsernameNotFoundException{
-        Member member = memberRepository.findById(Long.valueOf(userId)) // String을 Long으로 변환
+        Member member = memberRepository.findWithRolesById(Long.valueOf(userId)) // String을 Long으로 변환
                 .orElseGet(()->new Member(null,null,null,null, List.of())); // 사용자를 찾지 못했다면 권한이 없고 비어있는 CustomUserDetails를 생성하여 반환
 
         // 권한 등급을 GrantedAuthority interface 타입으로 받는다. 구현체인 SimpleGrantedAuthority를 이용했다.

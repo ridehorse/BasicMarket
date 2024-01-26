@@ -4,11 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.basicMarket.dto.response.Response;
 import org.example.basicMarket.exception.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+
 
 @RestControllerAdvice
 @Slf4j
@@ -23,9 +26,9 @@ public class ExceptionAdvice {
         return Response.failure(-1000,"오류가 발생하였습니다.");
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler(BindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Response methodArgumentNotValidException(MethodArgumentNotValidException e) { // 2
+    public Response methodArgumentNotValidException(BindException e) { // 2
         return Response.failure(-1003, e.getBindingResult().getFieldError().getDefaultMessage());
     }
 
@@ -88,5 +91,24 @@ public class ExceptionAdvice {
     public Response CannotConvertNestedStructureException(CannotConvertNestedStructureException e) {
         log.info("e={}",e.getMessage());
         return Response.failure(-1011,"중첩 구조 변환에 실패하였습니다");
+    }
+
+    @ExceptionHandler(UnsupportedImageFormatException.class) // @RequestHeader 에너테이션 적용됬곳에 값이 null일 경우
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Response UnsupportedImageFormatException() {
+        return Response.failure(-1012,"지원되지 않는 확장자 입니다.");
+    }
+
+    @ExceptionHandler(PostNotFoundException.class) // @RequestHeader 에너테이션 적용됬곳에 값이 null일 경우
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Response PostNotFoundtException() {
+        return Response.failure(-1013,"게시물을 찾을 수 없습니다.");
+    }
+
+    @ExceptionHandler(FIleUploadFailureException.class) // @RequestHeader 에너테이션 적용됬곳에 값이 null일 경우
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Response FIleUploadFailureException(FIleUploadFailureException e) {
+        log.info("e={}",e.getMessage());
+        return Response.failure(-1014,"파일 업로드에 실패하였습니다.");
     }
 }

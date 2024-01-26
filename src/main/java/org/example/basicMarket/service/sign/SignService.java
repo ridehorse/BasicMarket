@@ -3,6 +3,7 @@ package org.example.basicMarket.service.sign;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.basicMarket.config.token.TokenHelper;
+import org.example.basicMarket.dto.post.PostDto;
 import org.example.basicMarket.dto.sign.RefreshTokenResponse;
 import org.example.basicMarket.dto.sign.SignInRequest;
 import org.example.basicMarket.dto.sign.SignInResponse;
@@ -12,6 +13,7 @@ import org.example.basicMarket.entity.member.RoleType;
 import org.example.basicMarket.exception.*;
 import org.example.basicMarket.repository.member.MemberRepository;
 import org.example.basicMarket.repository.member.RoleRepository;
+import org.example.basicMarket.repository.post.PostRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
@@ -27,6 +29,7 @@ public class SignService {
     private final PasswordEncoder passwordEncoder;
     private final TokenHelper accessTokenHelper;
     private final TokenHelper refreshTokenHelper;
+    private final PostRepository postRepository;
 
     @Transactional
     public void signUp(SignUpRequest req){
@@ -86,5 +89,9 @@ public class SignService {
         if (!refreshTokenHelper.validate(rToken)) {
             throw new AuthenticationEntryPointException();
         }
+    }
+
+    public PostDto read(Long id) {
+        return PostDto.toDto(postRepository.findById(id).orElseThrow(PostNotFoundException::new));
     }
 }
