@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class MemberGuard {
+public class MemberGuard extends Guard{
 
     private final AuthHelper authHelper;
 
