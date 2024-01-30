@@ -18,7 +18,7 @@ public abstract class EntityDate {
 
     @CreatedDate
     @Column(nullable = false,updatable = false)
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
     @Column(nullable = false,updatable = false)

@@ -5,13 +5,17 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.basicMarket.entity.category.Category;
+import org.example.basicMarket.entity.comment.Comment;
 import org.example.basicMarket.entity.member.Member;
 import org.example.basicMarket.entity.member.Role;
 import org.example.basicMarket.entity.member.RoleType;
+import org.example.basicMarket.entity.post.Post;
 import org.example.basicMarket.exception.RoleNotFoundException;
+import org.example.basicMarket.repository.comment.CommentRepository;
 import org.example.basicMarket.repository.member.CategoryRepository;
 import org.example.basicMarket.repository.member.MemberRepository;
 import org.example.basicMarket.repository.member.RoleRepository;
+import org.example.basicMarket.repository.post.PostRepository;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 @RequiredArgsConstructor
@@ -31,6 +36,8 @@ public class InitDB {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final CategoryRepository categoryRepository;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
     // @Transactional 적용 불가능하여 제거
     // @PostConstruct // 빈의 생성과 의존성 주입이 끝난 뒤에 수행할 초기화 코드 지정할수 있다.
@@ -42,6 +49,9 @@ public class InitDB {
         initTestAdmin();
         initTestMember();
         initCategory();
+        initPost();
+        initComment();
+
     }
 
     private void initRole() {
@@ -78,6 +88,31 @@ public class InitDB {
         Category c6 = categoryRepository.save(new Category("category6", c4));
         Category c7 = categoryRepository.save(new Category("category7", c3));
         Category c8 = categoryRepository.save(new Category("category8", null));
+    }
+
+    // forEach() : 객체 결과물이 메서드의 결과로 반환안된다. mapToObject() : 객체 결과물이 반환된다.
+    // 이 코드에서도 보면 postRepository.save() 매서드 실행해서, DB에 객체들을 저장했다. 객체 반환은 중요한게 아니다.
+    private void initPost() {
+        Member member = memberRepository.findAll().get(0);
+        Category category = categoryRepository.findAll().get(0);
+        IntStream.range(0, 100000)
+                .forEach(i -> postRepository.save(
+                        new Post("title" + i, "content" + i, Long.valueOf(i), member, category, List.of())
+                ));
+    }
+
+    private void initComment(){
+
+        Member member = memberRepository.findAll().get(0);
+        Post post = postRepository.findAll().get(0);
+        Comment c1 = commentRepository.save(new Comment("content", member, post, null));
+        Comment c2 = commentRepository.save(new Comment("content", member, post, c1));
+        Comment c3 = commentRepository.save(new Comment("content", member, post, c1));
+        Comment c4 = commentRepository.save(new Comment("content", member, post, c2));
+        Comment c5 = commentRepository.save(new Comment("content", member, post, c2));
+        Comment c6 = commentRepository.save(new Comment("content", member, post, c4));
+        Comment c7 = commentRepository.save(new Comment("content", member, post, c3));
+        Comment c8 = commentRepository.save(new Comment("content", member, post, null));
     }
 
 }

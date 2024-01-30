@@ -2,6 +2,7 @@ plugins {
     id("java")
     id("org.springframework.boot") version "3.0.2"
     id("io.spring.dependency-management") version "1.1.0"
+
 }
 
 group = "org.example"
@@ -11,7 +12,11 @@ repositories {
     mavenCentral()
 }
 
+
+
 dependencies {
+
+
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -47,6 +52,13 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-aop
     implementation ("org.springframework.boot:spring-boot-starter-aop:3.2.2")
+
+    //Querydsl 추가
+    implementation("com.querydsl:querydsl-core:5.0.0")
+    implementation ("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+    annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta") //querydsl JPAAnnotationProcessor 사용 지정
+    annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+    annotationProcessor("jakarta.annotation:jakarta.annotation-api")
 
 }
 

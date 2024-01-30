@@ -1,9 +1,7 @@
 package org.example.basicMarket.service.post;
 
 import lombok.RequiredArgsConstructor;
-import org.example.basicMarket.dto.post.PostCreateRequest;
-import org.example.basicMarket.dto.post.PostCreateResponse;
-import org.example.basicMarket.dto.post.PostDto;
+import org.example.basicMarket.dto.post.*;
 import org.example.basicMarket.entity.post.Image;
 import org.example.basicMarket.entity.post.Post;
 import org.example.basicMarket.exception.PostNotFoundException;
@@ -51,6 +49,21 @@ public class PostService {
         return PostDto.toDto(postRepository.findById(id).orElseThrow(PostNotFoundException::new));
     }
 
+    // PostListDto.class
+    //    private Long totalElements;
+    //    private Integer totalPages;
+    //    private boolean hasNext;
+    //    private List<PostSimpleDto> postList;
+    public PostListDto readAll(PostReadCondition cond) {
+            // List<PostSimpleDto>를 인자로 받아 PostListDto객체로 만는다.
+        return PostListDto.toDto(
+                //findAllByCondition : memberId, categoryId, page, size 값을 가진 PostReadCondition 객체를  인자로받아, 페이징처리를 한다음
+                // List<PostSimpleDto> 로 반환하는 매서드이다.
+                // PostSimpleDto: 각 post의 id, title, nickname, createat 이 담겨있다.
+                postRepository.findAllByCondition(cond)
+        );
+    }
+
     @Transactional
     public void delete(Long id) {
         Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
@@ -61,4 +74,14 @@ public class PostService {
     private void deleteImages(List<Image> images) {
         images.stream().forEach(i -> fileService.delete(i.getUniqueName()));
     }
+
+    @Transactional
+    public PostUpdateResponse update(Long id, PostUpdateRequest req) {
+        Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
+        Post.ImageUpdatedResult result = post.update(req);
+        uploadImages(result.getAddedImages(), result.getAddedImageFiles());
+        deleteImages(result.getDeletedImages());
+        return new PostUpdateResponse(id);
+    }
+
 }

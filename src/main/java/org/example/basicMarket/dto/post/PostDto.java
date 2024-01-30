@@ -37,7 +37,7 @@ public class PostDto {
                 post.getPrice(),
                 MemberDto.toDto(post.getMember()),
                 post.getImages().stream().map(i->ImageDto.toDto(i)).collect(toList()), //원래 파일과 서버에서 생성한 고유한 파일명으로 DTO를 생성해서 반환
-                post.getCreateAt(),
+                post.getCreatedAt(),
                 post.getModifiedAt()
         );
     }

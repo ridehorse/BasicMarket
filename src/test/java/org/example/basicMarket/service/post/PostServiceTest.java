@@ -2,6 +2,9 @@ package org.example.basicMarket.service.post;
 
 import org.example.basicMarket.dto.post.PostCreateRequest;
 import org.example.basicMarket.dto.post.PostDto;
+import org.example.basicMarket.dto.post.PostListDto;
+import org.example.basicMarket.dto.post.PostUpdateRequest;
+import org.example.basicMarket.entity.post.Image;
 import org.example.basicMarket.entity.post.Post;
 import org.example.basicMarket.exception.CategoryNotFoundException;
 import org.example.basicMarket.exception.MemberNotFoundException;
@@ -16,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
@@ -28,8 +32,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.example.basicMarket.factory.dto.PostCreateRequestFactory.createPostCreateRequest;
 import static org.example.basicMarket.factory.dto.PostCreateRequestFactory.createPostCreateRequestWithImages;
+import static org.example.basicMarket.factory.dto.PostReadConditionFactory.createPostReadCondition;
+import static org.example.basicMarket.factory.dto.PostUpdatedRequestFactory.createPostUpdateRequest;
 import static org.example.basicMarket.factory.entity.CategoryFactory.createCategory;
 import static org.example.basicMarket.factory.entity.ImageFactory.createImage;
+import static org.example.basicMarket.factory.entity.ImageFactory.createImageWithIdAndOriginName;
 import static org.example.basicMarket.factory.entity.MemberFactory.createMember;
 import static org.example.basicMarket.factory.entity.PostFactory.createPostWithImages;
 import static org.mockito.ArgumentMatchers.*;
@@ -148,5 +155,50 @@ public class PostServiceTest {
 
         // when, then
         assertThatThrownBy(() -> postService.delete(1L)).isInstanceOf(PostNotFoundException.class);
+    }
+
+    @Test
+    void updateTest() {
+        // given
+        Image a = createImageWithIdAndOriginName(1L, "a.png");
+        Image b = createImageWithIdAndOriginName(2L, "b.png");
+        Post post = createPostWithImages(List.of(a, b));
+        given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
+        MockMultipartFile cFile = new MockMultipartFile("c", "c.png", MediaType.IMAGE_PNG_VALUE, "c".getBytes());
+        PostUpdateRequest postUpdateRequest = createPostUpdateRequest("title", "content", 1000L, List.of(cFile), List.of(a.getId()));
+
+        // when
+        postService.update(1L, postUpdateRequest);
+
+        // then
+        List<Image> images = post.getImages();
+        List<String> originNames = images.stream().map(i -> i.getOriginName()).collect(toList());
+        assertThat(originNames.size()).isEqualTo(2);
+        assertThat(originNames).contains(b.getOriginName(), cFile.getOriginalFilename());
+
+        verify(fileService, times(1)).upload(any(), anyString());
+        verify(fileService, times(1)).delete(anyString());
+    }
+
+    @Test
+    void updateExceptionByPostNotFoundTest() {
+        // given
+        given(postRepository.findById(anyLong())).willReturn(Optional.ofNullable(null));
+
+        // when, then
+        assertThatThrownBy(() -> postService.update(1L, createPostUpdateRequest("title", "content", 1234L, List.of(), List.of())))
+                .isInstanceOf(PostNotFoundException.class);
+    }
+
+    @Test
+    void readAllTest() {
+        // given
+        given(postRepository.findAllByCondition(any())).willReturn(Page.empty());
+
+        // when
+        PostListDto postListDto = postService.readAll(createPostReadCondition(1, 1));
+
+        // then
+        assertThat(postListDto.getPostList().size()).isZero();
     }
 }

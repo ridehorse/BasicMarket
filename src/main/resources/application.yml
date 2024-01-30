@@ -5,6 +5,9 @@ spring:
     password:
     driver-class-name: org.h2.Driver
   jpa:
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100 #일괄 패치 크기 설정 : 한번의 쿼리로 가져올 엔티티의 수를 지정 -> 쿼리당 최대 100개의 entity를 가져올 수 있다.
     show:
       sql:
         true

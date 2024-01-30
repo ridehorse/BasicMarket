@@ -55,10 +55,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,"/api/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/image/**").permitAll()
                 .requestMatchers(HttpMethod.DELETE,"/api/members/{id}/**").access("@memberGuard.check(#id)")
-                .requestMatchers(HttpMethod.DELETE,"/api/posts/{id}/**").access("@postGuard.check(#id)")
+                .requestMatchers(HttpMethod.DELETE,"/api/posts/{id}").access("@postGuard.check(#id)")
+                .requestMatchers(HttpMethod.PUT,"/api/posts/{id}").access("@postGuard.check(#id)")
+                .requestMatchers(HttpMethod.DELETE, "/api/comments/{id}").access("@commentGuard.check(#id)")
                 .requestMatchers(HttpMethod.POST,"/api/categories/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE,"/api/categories/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST,"/api/posts").authenticated()
+                .requestMatchers(HttpMethod.POST,"/api/comments").authenticated()
                 .requestMatchers(HttpMethod.GET,"/error").permitAll();
 //                .anyRequest().hasAnyRole("ADMIN");
 

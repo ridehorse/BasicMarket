@@ -55,6 +55,9 @@ public class PostCreateRequest {
     @PositiveOrZero(message = "올바른 카테고리 아이디를 입력해주세요.")
     private Long categoryId;
 
+    //image의 본문 내용은 MultipartFile 객채에 담겨 있다. 클라이언트에서 서버로 요청을 보낼 때 MultipartFile 객체에 담겨서 온다.
+    //서버에서 만든 image Entity에는 이미지의 본문 내용이 없다. 단지 오리지널 이름과, 서버에서 새롭게 만든 고유한 이름만 저장될 뿐이다.
+    //이미지의 내용은 DB에 저장되지 않는다. 이름만 저장된다. 내용은 controller에서 MultipartFile 객체에 의해 fileSerivce에 의해 지정한 로컬 디렉토리에 바로 저장된다.
     @ApiModelProperty(value = "이미지", notes = "이미지를 첨부해주세요.")
     private List<MultipartFile> images = new ArrayList<>();
 

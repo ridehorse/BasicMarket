@@ -1,6 +1,7 @@
 package org.example.basicMarket.controller.post;
 
 import org.example.basicMarket.dto.post.PostCreateRequest;
+import org.example.basicMarket.dto.post.PostReadCondition;
 import org.example.basicMarket.dto.sign.SignInResponse;
 import org.example.basicMarket.entity.category.Category;
 import org.example.basicMarket.entity.member.Member;
@@ -29,6 +30,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.example.basicMarket.factory.dto.PostCreateRequestFactory.createPostCreateRequest;
+import static org.example.basicMarket.factory.dto.PostReadConditionFactory.createPostReadCondition;
 import static org.example.basicMarket.factory.dto.SignInRequestFactory.createSignInRequest;
 import static org.example.basicMarket.factory.entity.PostFactory.createPost;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -187,5 +189,125 @@ public class PostControllerIntegrationTest {
                         delete("/api/posts/{id}", post.getId()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/exception/entry-point"));
+    }
+
+    @Test
+    void updateByResourceOwnerTest() throws Exception {
+        // given
+        SignInResponse signInRes = signService.signIn(createSignInRequest(member1.getEmail(), initDB.getPassword()));
+        Post post = postRepository.save(createPost(member1, category));
+        String updatedTitle = "updatedTitle";
+        String updatedContent = "updatedContent";
+        Long updatedPrice = 1234L;
+
+        // when, then
+        mockMvc.perform(
+                        multipart("/api/posts/{id}", post.getId())
+                                .param("title", updatedTitle)
+                                .param("content", updatedContent)
+                                .param("price", String.valueOf(updatedPrice))
+                                .with(requestPostProcessor -> {
+                                    requestPostProcessor.setMethod("PUT");
+                                    return requestPostProcessor;
+                                })
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .header("Authorization", signInRes.getAccessToken()))
+                .andExpect(status().isOk());
+
+        Post updatedPost = postRepository.findById(post.getId()).orElseThrow(PostNotFoundException::new);
+        assertThat(updatedPost.getTitle()).isEqualTo(updatedTitle);
+        assertThat(updatedPost.getContent()).isEqualTo(updatedContent);
+        assertThat(updatedPost.getPrice()).isEqualTo(updatedPrice);
+    }
+
+    @Test
+    void updateByAdminTest() throws Exception {
+        // given
+        SignInResponse adminSignInRes = signService.signIn(createSignInRequest(admin.getEmail(), initDB.getPassword()));
+        Post post = postRepository.save(createPost(member1, category));
+        String updatedTitle = "updatedTitle";
+        String updatedContent = "updatedContent";
+        Long updatedPrice = 1234L;
+
+        // when, then
+        mockMvc.perform(
+                        multipart("/api/posts/{id}", post.getId())
+                                .param("title", updatedTitle)
+                                .param("content", updatedContent)
+                                .param("price", String.valueOf(updatedPrice))
+                                .with(requestPostProcessor -> {
+                                    requestPostProcessor.setMethod("PUT");
+                                    return requestPostProcessor;
+                                })
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .header("Authorization", adminSignInRes.getAccessToken()))
+                .andExpect(status().isOk());
+
+        Post updatedPost = postRepository.findById(post.getId()).orElseThrow(PostNotFoundException::new);
+        assertThat(updatedPost.getTitle()).isEqualTo(updatedTitle);
+        assertThat(updatedPost.getContent()).isEqualTo(updatedContent);
+        assertThat(updatedPost.getPrice()).isEqualTo(updatedPrice);
+    }
+
+    @Test
+    void updateUnauthorizedByNoneTokenTest() throws Exception {
+        // given
+        Post post = postRepository.save(createPost(member1, category));
+        String updatedTitle = "updatedTitle";
+        String updatedContent = "updatedContent";
+        Long updatedPrice = 1234L;
+
+        // when, then
+        mockMvc.perform(
+                        multipart("/api/posts/{id}", post.getId())
+                                .param("title", updatedTitle)
+                                .param("content", updatedContent)
+                                .param("price", String.valueOf(updatedPrice))
+                                .with(requestPostProcessor -> {
+                                    requestPostProcessor.setMethod("PUT");
+                                    return requestPostProcessor;
+                                })
+                                .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/exception/entry-point"));
+    }
+
+    @Test
+    void updateAccessDeniedByNotResourceOwnerTest() throws Exception {
+        // given
+        SignInResponse notOwnerSignInRes = signService.signIn(createSignInRequest(member2.getEmail(), initDB.getPassword()));
+        Post post = postRepository.save(createPost(member1, category));
+        String updatedTitle = "updatedTitle";
+        String updatedContent = "updatedContent";
+        Long updatedPrice = 1234L;
+
+        // when, then
+        mockMvc.perform(
+                        multipart("/api/posts/{id}", post.getId())
+                                .param("title", updatedTitle)
+                                .param("content", updatedContent)
+                                .param("price", String.valueOf(updatedPrice))
+                                .with(requestPostProcessor -> {
+                                    requestPostProcessor.setMethod("PUT");
+                                    return requestPostProcessor;
+                                })
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                .header("Authorization", notOwnerSignInRes.getAccessToken()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/exception/access-denied"));
+    }
+
+    @Test
+    void readAllTest() throws Exception {
+        // given
+        PostReadCondition cond = createPostReadCondition(0, 1);
+
+        // when, then
+        mockMvc.perform(
+                        get("/api/posts")
+                                .param("page", String.valueOf(cond.getPage())).param("size", String.valueOf(cond.getSize()))
+                                .param("categoryId", String.valueOf(1), String.valueOf(2))
+                                .param("memberId", String.valueOf(1), String.valueOf(2)))
+                .andExpect(status().isOk());
     }
 }
