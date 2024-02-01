@@ -3,17 +3,20 @@ package org.example.basicMarket.repository.member;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.assertj.core.api.Assertions;
+import org.example.basicMarket.config.QuerydslConfig;
 import org.example.basicMarket.entity.member.Role;
 import org.example.basicMarket.entity.member.RoleType;
 import org.example.basicMarket.exception.RoleNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import static org.example.basicMarket.factory.entity.RoleFactory.createRole;
 
 @DataJpaTest
+@Import(QuerydslConfig.class)
 public class RoleRepositoryTest {
     @Autowired
     RoleRepository roleRepository;

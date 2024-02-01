@@ -50,22 +50,38 @@ public class SecurityConfig {
 //                        .requestMatchers(HttpMethod.GET,"/api/**").permitAll()
 //                        .anyRequest().hasAnyRole("ADMIN"));
 
-        http.authorizeRequests() // @<빈이름>.<메소드명>(<인자,#id로하면 URL에 지정한 {id}가 매핑되어서 인자로 들어감>)
-                .requestMatchers(HttpMethod.POST,"/api/sign-in","/api/sign-up","/api/refresh-token").permitAll()
-                .requestMatchers(HttpMethod.GET,"/api/**").permitAll()
-                .requestMatchers(HttpMethod.GET,"/image/**").permitAll()
-                .requestMatchers(HttpMethod.DELETE,"/api/members/{id}/**").access("@memberGuard.check(#id)")
+
+        http.authorizeRequests()
+                .requestMatchers(HttpMethod.DELETE,"/api/members/{id}/**").access("@memberGuard.check(#id)");
+
+        http.authorizeRequests()
                 .requestMatchers(HttpMethod.DELETE,"/api/posts/{id}").access("@postGuard.check(#id)")
                 .requestMatchers(HttpMethod.PUT,"/api/posts/{id}").access("@postGuard.check(#id)")
-                .requestMatchers(HttpMethod.DELETE, "/api/comments/{id}").access("@commentGuard.check(#id)")
+                .requestMatchers(HttpMethod.POST,"/api/posts").authenticated();
+
+        http.authorizeRequests()
                 .requestMatchers(HttpMethod.POST,"/api/categories/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE,"/api/categories/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST,"/api/posts").authenticated()
-                .requestMatchers(HttpMethod.POST,"/api/comments").authenticated()
+                .requestMatchers(HttpMethod.DELETE,"/api/categories/**").hasRole("ADMIN");
+
+        http.authorizeRequests()
+                .requestMatchers(HttpMethod.DELETE, "/api/comments/{id}").access("@commentGuard.check(#id)")
+                .requestMatchers(HttpMethod.POST,"/api/comments").authenticated();
+
+        http.authorizeRequests()
+                .requestMatchers(HttpMethod.GET,"/api/messages/sender","/api/messages/receiver").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/messages").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/messages/{id}").access("@messageGuard.check(#id)")
+                .requestMatchers(HttpMethod.DELETE, "/api/messages/sender/{id}").access("@messageSenderGuard.check(#id)")
+                .requestMatchers(HttpMethod.DELETE,"/api/messages/receiver/{id}").access("@messageReceiverGuard.check(#id)")
                 .requestMatchers(HttpMethod.GET,"/error").permitAll();
 //                .anyRequest().hasAnyRole("ADMIN");
 
-        // 권한 부족등의 사유로 인해 접근이 거부 되었을 떄 작동할 핸들러 지정
+        http.authorizeRequests() // @<빈이름>.<메소드명>(<인자,#id로하면 URL에 지정한 {id}가 매핑되어서 인자로 들어감>)
+                .requestMatchers(HttpMethod.POST,"/api/sign-in","/api/sign-up","/api/refresh-token").permitAll()
+                .requestMatchers(HttpMethod.GET,"/api/**").permitAll()
+                .requestMatchers(HttpMethod.GET,"/image/**").permitAll();
+
+        // 권한 부족(인증은 됬지만)등의 사유로 인해 접근이 거부 되었을 떄 작동할 핸들러 지정
         // - exceptionAdvice에서 controller에서 발생한 오류를 일관적으로 처리하게 했는데, config에 작성한 오류들을 controller에 도달하기 전에 발생해 ExceptionAdvice를 이용하지 못한다.
         // 일관성을 주기위해 CustomAccessDeniedHandler class는 /exception/** 형태의 controller에 접근하게 해 exceptionAdvice에서 처리하게 한다.
         http.exceptionHandling().accessDeniedHandler(new CustomAccessDeniedHandler())

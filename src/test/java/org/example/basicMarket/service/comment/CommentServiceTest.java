@@ -1,6 +1,7 @@
 package org.example.basicMarket.service.comment;
 
 import org.example.basicMarket.dto.comment.CommentDto;
+import org.example.basicMarket.event.commment.CommentCreatedEvent;
 import org.example.basicMarket.exception.CommentNotFoundException;
 import org.example.basicMarket.exception.MemberNotFoundException;
 import org.example.basicMarket.exception.PostNotFoundException;
@@ -9,9 +10,11 @@ import org.example.basicMarket.repository.member.MemberRepository;
 import org.example.basicMarket.repository.post.PostRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +43,9 @@ class CommentServiceTest {
     MemberRepository memberRepository;
     @Mock
     PostRepository postRepository;
+
+    @Mock
+    ApplicationEventPublisher publisher;
 
     @Test
     void readAllTest() {
@@ -80,14 +86,25 @@ class CommentServiceTest {
     @Test
     void createTest() {
         // given
+        ArgumentCaptor<Object> eventCaptor = ArgumentCaptor.forClass(Object.class);
+
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
         given(postRepository.findById(anyLong())).willReturn(Optional.of(createPost()));
+        given(commentRepository.save(any())).willReturn(createComment(null));
 
         // when
         commentService.create(createCommentCreateRequest());
 
         // then
         verify(commentRepository).save(any());
+        // publisher 필드에 담긴 객체의 publishEvent 매서드가 특정한 인자로 호출되었는지를 검증
+        // verify(publisher) : publisher 객체의 메서드 호출을 확인
+        // publishEvent() : publishEvent() 매서드가 호출 되었는지 검증
+        // eventCaptor.capture() : 호출된 메서드에 전달된 인자를 캡쳐(실제로 publishEvent가 호출될때 전달된 인자를 저장한다.)
+        verify(publisher).publishEvent(eventCaptor.capture());
+
+        Object event = eventCaptor.getValue();
+        assertThat(event).isInstanceOf(CommentCreatedEvent.class);
     }
 
     @Test

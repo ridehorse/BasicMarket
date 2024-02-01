@@ -5,11 +5,14 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.basicMarket.dto.member.MemberDto;
 import org.example.basicMarket.entity.common.EntityDate;
 import org.example.basicMarket.entity.member.Member;
 import org.example.basicMarket.entity.post.Post;
+import org.example.basicMarket.event.commment.CommentCreatedEvent;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,5 +100,14 @@ public class Comment extends EntityDate {
         return getParent() != null && getParent().isDeleted();
     }
 
-
+    public void publishCreatedEvent(ApplicationEventPublisher publisher) {
+        publisher.publishEvent(
+                new CommentCreatedEvent(
+                        MemberDto.toDto(getMember()),
+                        MemberDto.toDto(getPost().getMember()),
+                        Optional.ofNullable(getParent()).map(p -> p.getMember()).map(m -> MemberDto.toDto(m)).orElseGet(() -> MemberDto.empty()),
+                        getContent()
+                )
+        );
+    }
 }

@@ -110,7 +110,7 @@ public class PostControllerAdviceTest {
         mockMvc.perform(
                         delete("/api/posts/{id}", 1L))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value(-1012));
+                .andExpect(jsonPath("$.code").value(-1013));
     }
 
     @Test

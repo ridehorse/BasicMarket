@@ -27,6 +27,8 @@ logging:
   level:
     root:
       debug
+    org.springframework.security:
+      debug
 
 jwt:
   key:

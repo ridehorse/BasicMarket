@@ -7,6 +7,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.example.basicMarket.dto.post.PostReadCondition;
 import org.example.basicMarket.dto.post.PostSimpleDto;
 import org.example.basicMarket.entity.post.Post;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +24,9 @@ import static org.example.basicMarket.entity.post.QPost.post;
 @Transactional(readOnly = true) // QuerydslRepositorySupport를 상속받아 Querydsl을 사용하는 SpringData JPA Repository 구현체임을 나타낸다.
 public class CustomPostRepositoryImpl extends QuerydslRepositorySupport implements CustomPostRepository { // 2
 
+    @Autowired
     private final JPAQueryFactory jpaQueryFactory; // 쿼리를 생성하는데 사용되는 객체
+
     public CustomPostRepositoryImpl(JPAQueryFactory jpaQueryFactory) { // 4
         super(Post.class); //Post.class를 전달하여 QuerydslRepositorySupport는 초기화 한다.
         this.jpaQueryFactory = jpaQueryFactory;
@@ -53,7 +56,7 @@ public class CustomPostRepositoryImpl extends QuerydslRepositorySupport implemen
         return getQuerydsl().applyPagination(
                 pageable,
                 jpaQueryFactory
-                        .select(constructor(PostSimpleDto.class, post.id, post.title, post.member.nickname, post.createAt))
+                        .select(constructor(PostSimpleDto.class, post.id, post.title, post.member.nickname, post.createdAt))
                         .from(post)
                         .join(post.member)
                         .where(predicate)

@@ -3,6 +3,7 @@ package org.example.basicMarket.repository.post;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.assertj.core.api.Assertions;
+import org.example.basicMarket.config.QuerydslConfig;
 import org.example.basicMarket.dto.post.PostUpdateRequest;
 import org.example.basicMarket.entity.category.Category;
 import org.example.basicMarket.entity.member.Member;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
@@ -33,6 +35,7 @@ import static org.example.basicMarket.factory.entity.PostFactory.createPostWithI
 
 // JPA 관련 컴포넌트을 테스트
 @DataJpaTest
+@Import(QuerydslConfig.class)
 public class PostRepositoryTest {
 
     @Autowired

@@ -117,7 +117,7 @@ class MemberControllerIntegrationTest {
         mockMvc.perform(
                         delete("/api/members/{id}", member.getId()).header("Authorization", signInRes.getRefreshToken()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/exception/access-denied"));
+                .andExpect(redirectedUrl("/exception/entry-point")); //refreshToken으로는 인증이 불가능한거 아닌가? 그러면 인증이 아예 안된(Token 자체가 틀릴것이므로) entry-point가 맞을거 같다.
     }
 
 }

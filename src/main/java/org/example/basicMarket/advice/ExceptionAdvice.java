@@ -117,4 +117,11 @@ public class ExceptionAdvice {
     public Response commentNotFoundException() {
         return Response.failure(-1015,"댓글을 찾을 수 없습니다.");
     }
+
+
+    @ExceptionHandler(MessageNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Response MessageNotFoundException() {
+        return Response.failure(-1016,"메세지를 찾을 수 없습니다.");
+    }
 }

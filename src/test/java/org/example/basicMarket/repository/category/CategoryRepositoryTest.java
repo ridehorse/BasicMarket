@@ -2,12 +2,14 @@ package org.example.basicMarket.repository.category;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.example.basicMarket.config.QuerydslConfig;
 import org.example.basicMarket.entity.category.Category;
 import org.example.basicMarket.exception.CategoryNotFoundException;
 import org.example.basicMarket.repository.member.CategoryRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.List;
@@ -26,6 +28,7 @@ import static org.example.basicMarket.factory.entity.CategoryFactory.createCateg
 //
 //트랜잭션 관리: 테스트 메서드 실행 전에 트랜잭션을 시작하고, 테스트가 완료되면 롤백하는 방식으로 트랜잭션을 관리합니다. 이를 통해 각각의 테스트가 서로 영향을 주지 않고 독립적으로 실행될 수 있습니다.
 @DataJpaTest
+@Import(QuerydslConfig.class)
 public class CategoryRepositoryTest {
 
     @Autowired

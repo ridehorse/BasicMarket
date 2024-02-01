@@ -6,16 +6,20 @@ import org.example.basicMarket.entity.category.Category;
 import org.example.basicMarket.entity.member.Member;
 import org.example.basicMarket.entity.member.Role;
 import org.example.basicMarket.entity.member.RoleType;
+import org.example.basicMarket.entity.message.Message;
+import org.example.basicMarket.exception.MemberNotFoundException;
 import org.example.basicMarket.exception.RoleNotFoundException;
 import org.example.basicMarket.repository.member.CategoryRepository;
 import org.example.basicMarket.repository.member.MemberRepository;
 import org.example.basicMarket.repository.member.RoleRepository;
+import org.example.basicMarket.repository.message.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 @Getter
@@ -29,6 +33,9 @@ public class TestInitDB {
     @Autowired
     CategoryRepository categoryRepository;
 
+    @Autowired
+    MessageRepository messageRepository;
+
     private final String adminEmail = "admin@admin.com";
     private final String member1Email = "member1@member.com";
     private final String member2Email = "member2@member.com";
@@ -40,6 +47,7 @@ public class TestInitDB {
         initTestAdmin();
         initTestMember();
         initCategory();
+        initMessage();
     }
 
     private void initRole() {
@@ -72,6 +80,12 @@ public class TestInitDB {
         Category category1 = new Category("category1", null);
         Category category2 = new Category("category2", category1);
         categoryRepository.saveAll(List.of(category1, category2));
+    }
+
+    private void initMessage() {
+        Member sender = memberRepository.findByEmail(getMember1Email()).orElseThrow(MemberNotFoundException::new);
+        Member receiver = memberRepository.findByEmail(getMember2Email()).orElseThrow(MemberNotFoundException::new);
+        IntStream.range(0, 5).forEach(i -> messageRepository.save(new Message("content" + i, sender, receiver)));
     }
 
 }

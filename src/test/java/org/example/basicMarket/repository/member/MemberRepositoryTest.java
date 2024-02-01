@@ -3,6 +3,7 @@ package org.example.basicMarket.repository.member;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.assertj.core.api.Assertions;
+import org.example.basicMarket.config.QuerydslConfig;
 import org.example.basicMarket.entity.member.Member;
 import org.example.basicMarket.entity.member.MemberRole;
 import org.example.basicMarket.entity.member.Role;
@@ -12,6 +13,7 @@ import org.example.basicMarket.factory.entity.MemberFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Collections;
@@ -25,6 +27,7 @@ import static org.example.basicMarket.factory.entity.MemberFactory.createMember;
 import static org.example.basicMarket.factory.entity.MemberFactory.createMemberWithRoles;
 
 @DataJpaTest
+@Import(QuerydslConfig.class)
 public class MemberRepositoryTest {
 
     @Autowired MemberRepository memberRepository;

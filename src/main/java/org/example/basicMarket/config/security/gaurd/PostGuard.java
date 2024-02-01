@@ -8,29 +8,23 @@ import org.example.basicMarket.repository.post.PostRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
-@Slf4j
-public class PostGuard {
-
-    private final AuthHelper authHelper;
+public class PostGuard extends Guard {
     private final PostRepository postRepository;
+    private List<RoleType> roleTypes = List.of(RoleType.ROLE_ADMIN);
 
-    public boolean check(Long id) {
-        return authHelper.isAuthenticated() && hasAuthority(id);
+    @Override
+    protected List<RoleType> getRoleTypes() {
+        return roleTypes;
     }
 
-    private boolean hasAuthority(Long id) {
-        return hasAdminRole() || isResourceOwner(id); // A || B A가 참이면 B는 실행되지도 않는다.
-    }
-
-    private boolean isResourceOwner(Long id) {
+    @Override
+    protected boolean isResourceOwner(Long id) {
         Post post = postRepository.findById(id).orElseThrow(() -> { throw new AccessDeniedException(""); });
-        Long memberId = authHelper.extractMemberId();
+        Long memberId = AuthHelper.extractMemberId();
         return post.getMember().getId().equals(memberId);
-    }
-
-    private boolean hasAdminRole() {
-        return authHelper.extractMemberRoles().contains(RoleType.ROLE_ADMIN);
     }
 }
