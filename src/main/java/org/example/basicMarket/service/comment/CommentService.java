@@ -35,6 +35,7 @@ public class CommentService {
 
     @Transactional
     public void create(CommentCreateRequest req) { // 2
+        log.info("CommentService.create 진입");
         Comment comment = commentRepository.save(CommentCreateRequest.toEntity(req, memberRepository, postRepository, commentRepository));
         comment.publishCreatedEvent(publisher);
         log.info("CommentService.create");

@@ -8,6 +8,7 @@ import org.example.basicMarket.dto.member.MemberDto;
 import org.example.basicMarket.service.alarm.AlarmService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class CommentCreatedListener {
     private final AlarmService smsAlarmService; // 1
     private List<AlarmService> alarmServices = new ArrayList<>();
 
-    @PostConstruct // 빈이 초기화된 후 호출되는 메서드로, 빈이 가지고 있는 의존성이 모두 주입된 후 호출된다.
+    @PostConstruct // 실행순서 : 기본생성자 -> @Acquired || @RequiredArgsConstructor -> @PostConstruct
     public void postConstruct() { // 2
         alarmServices.add(emailAlarmService);
         alarmServices.add(lineAlarmService);
@@ -34,7 +35,7 @@ public class CommentCreatedListener {
     @TransactionalEventListener // 3
     @Async // 4
     public void handleAlarm(CommentCreatedEvent event) { // 5
-        log.info("CommentCreatedListener.handleAlarm");
+        log.info("CommentCreatedListener.handleAlarm 진입");
         String message = generateAlarmMessage(event);
         if(isAbleToSendToPostWriter(event)) alarmTo(event.getPostWriter(), message);
         if(isAbleToSendToParentWriter(event)) alarmTo(event.getParentWriter(), message);
