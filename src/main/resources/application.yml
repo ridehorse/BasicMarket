@@ -22,6 +22,9 @@ spring:
         5MB
       max-request-size:
         5MB
+  messages: #국제화 : 예외,유효성검사
+    basename:
+      i18n/exception,i18n/validation
 
 logging:
   level:
